@@ -1,0 +1,62 @@
+<html>
+	<head>
+			<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+			<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+  			crossorigin="anonymous"></script>
+
+			<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</head>
+	<style>
+		textarea{
+			width: 75%;
+			height:300px;
+			margin-bottom: 40px;
+			padding:5px;
+		}
+
+		input{
+			width: 75%;
+			padding: 5px;
+			font-size: 14px;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<div class="row-fluid">
+				<h1>Server Sent Events - Chat demo</h1>
+			</div>	
+			<div class="row-fluid">
+				<textarea id="chat-box" name="chat-box" placeholder="Chat box"></textarea>
+			</div>
+			<div class="row-fluid">
+				<form id="message-form">
+					<input id="message-text" name="message-text" type="text" placeholder="Write a message...">
+				</form>
+				<a href="#" id="send-message-button" class="pull-right btn btn-primary">Send</a>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+			var messages = [];
+			var source = new EventSource("http://localhost:8080/stream/messages");
+			source.onmessage = function(event) {
+    			var jsonMessage = JSON.parse(event.data);
+    			if(jQuery.inArray(jsonMessage.text,messages) < 0){
+    				messages.push(jsonMessage.text);
+    				jQuery('#chat-box').val('');
+    				for(var i=0;i<messages.length;i++){
+    					jQuery('#chat-box').val(jQuery('#chat-box').val()+'\n'+messages[i]);
+    				}
+    				
+    			}
+    			
+			};
+			
+			jQuery('#send-message-button').click(function(event){
+				event.preventDefault();
+				jQuery.post("http://localhost:8080/insert-message",jQuery('#message-form').serialize());
+			});
+		
+	</script>
+</html>
